@@ -1,17 +1,52 @@
 import React, { Component } from "react";
+import axios from 'axios';
 import "./App.css";
 
+const apiEndPoint = "https://jsonplaceholder.typicode.com/posts";
 class App extends Component {
   state = {
     posts: []
   };
 
-  handleAdd = () => {
-    console.log("Add");
+  async componentDidMount() {
+    //fist call is pending due to the delay
+    // then either resolve or reject
+    // there are two inner properties
+    // there is a data property for second inner property
+    // if you want get the data, you have to use "await" async function or the old way promise.then()
+
+
+    // const promise = axios.get(apiEndPoint);
+    // const respones = await promise;
+    //  this.setState({ posts: respones.data })
+    // or simplify it:
+
+    const { data: posts } = await axios.get(apiEndPoint);
+    this.setState({ posts });
+
+  }
+
+  handleAdd = async () => {
+    const obj = { title: "a", body: "b" }
+    const { data: post } = await axios.post(apiEndPoint, obj);
+    // You post the new object into server, but not update it in our state yet
+
+    //update:
+
+    const posts = [post, ...this.state.posts];
+    this.setState({ posts });
+    // in the network section of Chrome, there are two posts, the first one with Request Method: OPTIONS
+    //reason is our project is hosted on local, but server is held on another domain.
+    // for security reason, browser always send it when you have two different domains
+
   };
 
   handleUpdate = post => {
-    console.log("Update", post);
+    //axios.put(): put entire data into server
+    //axios.patch(): put one or more data into server
+    //for example, put() need to post the entire post object
+    // but patch() can just post the "title" property of the object
+
   };
 
   handleDelete = post => {
