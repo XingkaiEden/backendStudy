@@ -46,7 +46,7 @@ class App extends Component {
     //axios.patch(): put one or more data into server
     //for example, put() need to post the entire post object
     // but patch() can just post the "title" property of the object
-
+    //post
   };
 
   handleDelete = post => {
