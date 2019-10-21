@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import axios from 'axios';
 import "./App.css";
 
+
 const apiEndPoint = "https://jsonplaceholder.typicode.com/posts";
 class App extends Component {
   state = {
@@ -41,16 +42,66 @@ class App extends Component {
 
   };
 
-  handleUpdate = post => {
+  handleUpdate = async post => {
     //axios.put(): put entire data into server
     //axios.patch(): put one or more data into server
     //for example, put() need to post the entire post object
     // but patch() can just post the "title" property of the object
-    //post
+    post.title = "UPDATE1"; // update the title in memory
+    await axios.put(`${apiEndPoint}/${post.id}`, post); // put update to server
+
+
+    const posts = [...this.state.posts];
+    const index = posts.indexOf(post);
+    posts[index] = { ...post };
+    this.setState({ posts });
+    //mistake I made: 
+    //1. forgot to add await and async, which cause data is undefined
+    //2. posts[index] = { ...post }; represents the spreaded object:
+    //{userId: 1, id: 1, title: "UPDATE", 
+    //body: "quia et suscipit↵suscipit recusandae consequuntur 
+    //…strum rerum est autem sunt rem eveniet architecto"}
+    // However, posts[index] = {post } represents the post object which did not be spreaded
+    // we want the spreaded on here
+
   };
 
-  handleDelete = post => {
-    console.log("Delete", post);
+  handleDelete = async post => {
+    // await axios.delete(`${apiEndPoint}/${post.id}`);//delete it from server
+    // //QUESTION: why we not get the new data from server
+    // // const posts = await axios.get(apiEndPoint);
+    // //here is why: sometime you want to delete if first and then call the server
+    // // it gives user better experience due to no delay for users
+
+    // const posts = this.state.posts.filter(p => p.id !== post.id);
+    // this.setState({ posts });
+
+    const originalPosts = this.state.posts;
+    const posts = this.state.posts.filter(p => p.id !== post.id);
+    this.setState({ posts });
+
+    try {
+      await axios.delete(`${apiEndPoint}/${post.id}`);
+
+    }
+    catch (error) {
+      // expect and unexpect errors
+      // we need to catch them all
+      // request(to server); response(from server)
+      if (error.response && error.response.status === 404) {
+        console.log(error)
+        alert("this post has been delete already")
+      } else {
+        console.log(error)
+        alert("something happend and can't delete the post");
+      }
+      this.setState({ posts: originalPosts });
+    }// try this with disconnect the wifi
+
+    //mistake I made here:
+    // due to originalPost has different name 
+    // you have to notify .setState() which object you want to change
+    // before is: {posts:posts}, after is {posts:originalPosts}
   };
 
   render() {
