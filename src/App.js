@@ -1,9 +1,11 @@
 import React, { Component } from "react";
-import axios from 'axios';
+import http from "./services/httpServices";
+import config from "./config.json";
 import "./App.css";
 
 
-const apiEndPoint = "https://jsonplaceholder.typicode.com/posts";
+
+
 class App extends Component {
   state = {
     posts: []
@@ -17,19 +19,19 @@ class App extends Component {
     // if you want get the data, you have to use "await" async function or the old way promise.then()
 
 
-    // const promise = axios.get(apiEndPoint);
+    // const promise = axios.get(config.apiEndPoint);
     // const respones = await promise;
     //  this.setState({ posts: respones.data })
     // or simplify it:
 
-    const { data: posts } = await axios.get(apiEndPoint);
+    const { data: posts } = await http.get(config.apiEndPoint);
     this.setState({ posts });
 
   }
 
   handleAdd = async () => {
     const obj = { title: "a", body: "b" }
-    const { data: post } = await axios.post(apiEndPoint, obj);
+    const { data: post } = await http.post(config.apiEndPoint, obj);
     // You post the new object into server, but not update it in our state yet
 
     //update:
@@ -48,7 +50,7 @@ class App extends Component {
     //for example, put() need to post the entire post object
     // but patch() can just post the "title" property of the object
     post.title = "UPDATE1"; // update the title in memory
-    await axios.put(`${apiEndPoint}/${post.id}`, post); // put update to server
+    await http.put(`${config.apiEndPoint}/${post.id}`, post); // put update to server
 
 
     const posts = [...this.state.posts];
@@ -67,9 +69,9 @@ class App extends Component {
   };
 
   handleDelete = async post => {
-    // await axios.delete(`${apiEndPoint}/${post.id}`);//delete it from server
+    // await axios.delete(`${config.apiEndPoint}/${post.id}`);//delete it from server
     // //QUESTION: why we not get the new data from server
-    // // const posts = await axios.get(apiEndPoint);
+    // // const posts = await axios.get(config.apiEndPoint);
     // //here is why: sometime you want to delete if first and then call the server
     // // it gives user better experience due to no delay for users
 
@@ -81,7 +83,7 @@ class App extends Component {
     this.setState({ posts });
 
     try {
-      await axios.delete(`${apiEndPoint}/${post.id}`);
+      await http.delete(`${config.apiEndPoint}/${post.id}`);
 
     }
     catch (error) {
@@ -91,10 +93,14 @@ class App extends Component {
       if (error.response && error.response.status === 404) {
         console.log(error)
         alert("this post has been delete already")
-      } else {
-        console.log(error)
-        alert("something happend and can't delete the post");
       }
+      // if (error.response && error.response.status === 404) {
+      //   console.log(error)
+      //   alert("this post has been delete already")
+      // } else {
+      //   console.log(error)
+      //   alert("something happend and can't delete the post");
+      // }
       this.setState({ posts: originalPosts });
     }// try this with disconnect the wifi
 
@@ -102,6 +108,9 @@ class App extends Component {
     // due to originalPost has different name 
     // you have to notify .setState() which object you want to change
     // before is: {posts:posts}, after is {posts:originalPosts}
+
+
+    //YOU WANT TO HANDLE ERRORS IN ALL METHOD, THEN USE INTERCEPTORS, TOP OF THIS PAGE
   };
 
   render() {
