@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { ToastContainer } from 'react-toastify';
 import http from "./services/httpServices";
 import config from "./config.json";
+
 import "react-toastify/dist/ReactToastify.css"
 import "./App.css";
 
@@ -92,10 +93,10 @@ class App extends Component {
       // expect and unexpect errors
       // we need to catch them all
       // request(to server); response(from server)
-      if (error.response && error.response.status === 404) {
-        console.log(error)
-        alert("this post has been delete already")
-      }
+      if (error.response && error.response.status === 404)
+        alert("this post has been delete already");
+      this.setState({ posts: originalPosts });
+
       // if (error.response && error.response.status === 404) {
       //   console.log(error)
       //   alert("this post has been delete already")
@@ -103,7 +104,7 @@ class App extends Component {
       //   console.log(error)
       //   alert("something happend and can't delete the post");
       // }
-      this.setState({ posts: originalPosts });
+
     }// try this with disconnect the wifi
 
     //mistake I made here:
